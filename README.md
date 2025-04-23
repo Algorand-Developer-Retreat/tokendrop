@@ -13,6 +13,10 @@ Key features:
 - Efficiently manage minimum balance requirements
 - Support for cancellation and cleanup of expired drops
 
+## UI
+
+- See [Haydrops](https://drops.hay.app) for a user interface to the official contract instance deployed by TxnLab.
+
 ## Prerequisites
 
 - Node.js (version specified in `.nvmrc`)
