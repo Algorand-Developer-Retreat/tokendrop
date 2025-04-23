@@ -1,0 +1,214 @@
+{
+  "name": "TokenDrop",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [
+        {
+          "name": "nfdRegistryId",
+          "type": "uint64"
+        },
+        {
+          "name": "maintainerAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "updateApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "changeMaintainer",
+      "desc": "Updates the maintainer address of the application.\n\n\nThis method allows the creator of the application to set a new maintainer address for receiving half the creation\nfees",
+      "args": [
+        {
+          "name": "newMaintainer",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "changeFees",
+      "desc": "Updates the creation fee amount required at drop creation (split between maintainer and fee sink)\nThis method can only be called by the creator of the application and the fee must be at least 2 ALGO\n1 ALGO to maintainer address, 1 to fee sink.\nThe per-claim fee has to be at least double the per-claim MBR.\nAt claim, 50% is sent to the maintainer address, the mbr is subtracted out, and remainder goes to fee sink",
+      "args": [
+        {
+          "name": "creationFee",
+          "type": "uint64"
+        },
+        {
+          "name": "perClaimFee",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "optinAsset",
+      "desc": "Opts in the application to an asset if not already opted in.\nVerifies the provided payment transaction for sufficient funding to cover\nthe minimum balance required for asset opt-in and relevant transaction fees (.102 algo)\nInitiates an asset transfer transaction to complete the opt-in process.",
+      "args": [
+        {
+          "name": "mbrPayment",
+          "type": "pay",
+          "desc": "The payment transaction covering the minimum balance and fees."
+        },
+        {
+          "name": "assetId",
+          "type": "uint64",
+          "desc": "The unique identifier of the asset to opt into."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "getDropCreateCost",
+      "desc": "Calculates the fees required and MBR costs required for box storage for creating a drop with a specified maximum\nnumber of claimers.  This fee must be sent as a payment to the contract prior to the call to createDrop.\nThe actual fee (creationFeeAmount) is split between a maintainer account and the fee sink.  The fee is to help\nprevent 'spam' drops or drops created solely to block drops for specific assets.\n\n\n uint64 The total MBR required to cover the necessary up-front box storage costs.",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getPerClaimerMbrCost",
+      "desc": "Returns the MBR box cost for a single claimer (claimable by anyone later)",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getPerClaimerFee",
+      "desc": "Returns the per-claim fee paid (not reclaimable)",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getDropInfo",
+      "desc": "Retrieves the TokenDropInfo struct for a specific (still active) token drop based on the provided token drop ID.",
+      "readonly": true,
+      "args": [
+        {
+          "name": "tokenDropId",
+          "type": "uint64",
+          "desc": "The unique identifier for the token drop.\n TokenDropInfo An object containing details about the specified token drop."
+        }
+      ],
+      "returns": {
+        "type": "(uint64,address,uint64,uint64,uint64,(uint64,uint64,uint64,uint8,address,uint64[4],uint64))"
+      }
+    },
+    {
+      "name": "createDrop",
+      "desc": "Creates a new token drop and registers it in the system.\n\n\nThis method validates and processes a token drop, ensuring all required conditions\nare met. It registers the token drop with an assigned unique DropId, updates the\nrelevant state variables, and ensures that the drop complies with gating rules\nand limits.",
+      "args": [
+        {
+          "name": "feeAndMbrPayment",
+          "type": "pay",
+          "desc": "proceeding payment txn into contract account to cover extra mbr needed for box\nstorage as well as FUTURE box storage for all possible claims.  ie: 10K tokens, 1K each - 10 possible claims,\nso the cost per claim - the drop creator has to pay that upfront as well."
+        },
+        {
+          "name": "assetTxn",
+          "type": "axfer",
+          "desc": "The asset transfer transaction that transfers tokens for this drop."
+        },
+        {
+          "name": "tokenDropConfig",
+          "type": "(uint64,uint64,uint64,uint8,address,uint64[4],uint64)",
+          "desc": "The metadata related to the token drop, including drop creator, token details,\n                                       amount per claim, airdrop end time, and related gating info.\n uint64 Returns the token drop id assigned for this drop."
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "cancelDrop",
+      "args": [
+        {
+          "name": "tokenDropId",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "claimDrop",
+      "desc": "Processes a claim request for a specific token drop, ensuring compliance with all validation rules and conditions.",
+      "args": [
+        {
+          "name": "feeAndMbrPayment",
+          "type": "pay",
+          "desc": "The payment transaction object provided by the claimant to cover necessary fees."
+        },
+        {
+          "name": "tokenDropId",
+          "type": "uint64",
+          "desc": "The unique identifier of the token drop being claimed."
+        },
+        {
+          "name": "valueToVerify",
+          "type": "uint64",
+          "desc": "An optional value used for claim gating verification."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "claimClaimerBoxCost",
+      "args": [
+        {
+          "name": "tokenDropId",
+          "type": "uint64"
+        },
+        {
+          "name": "claimerAddress",
+          "type": "address"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "cleanupDrop",
+      "desc": "Cleans up an expired token drop by performing necessary actions such as refunding remaining tokens\nto the drop creator and removing the drop from the active drops.\nCalled if a new drop is created for the same asset id, and by anyone (presumably creator) if a drop is expired/empty.\nAlso called if the creator cancels the drop early.",
+      "args": [
+        {
+          "name": "tokenDropId",
+          "type": "uint64",
+          "desc": "The identifier of the token drop to be cleaned up.\n void This method does not return a value."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

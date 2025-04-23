@@ -1,0 +1,43 @@
+@startuml
+actor "Creator" as creator
+actor "User" as user
+database "DropContract" as drop
+actor "Maintainer" as maintainer
+entity "Fee Sink" as fee
+group Add new Drop
+autonumber
+creator->drop: mbr payment (.1 algo)
+creator->drop: optinAsset( ^- mbrPayment, assetId)
+autonumber 1
+drop-->drop: [itxn] optin into assetId
+autonumber 3
+creator->drop: fee/mbr payment (10 algo + mbr .0806)
+creator->drop: asset sent into drop contract account
+creator->drop: createDrop(feeAndMbrPayment, assetTxn, {TokenDropConfig})
+note right: Drop ID Allocated, stored in box storage\ndrop active until X time or all tokens claimed
+autonumber 1
+drop-->creator: [itxn] (optional) closes out prior drop for this asset - sends mbr refund to prior creator
+drop-->maintainer: [itxn] 5 algo payment to maintainer
+drop-->fee: [itxn] 5 algo payment to fee sink
+end
+group Claim from drop
+autonumber 1
+user -> user: asset optin
+user -> drop: fee (includes mbr) payment
+user -> drop: claimDrop( feePayment, dropId, {value to verify} )
+note right: user must pass any gating criteria defined by drop\nand can't already have claimed.
+autonumber 1
+drop -> maintainer: [itxn] 50% of 'per claim' fee paid to maintainer
+drop -> fee: [itxn]  remainder after leaving behind MBR cost
+drop -> user: [itxn] amountPerClaim of token sent to user - can't claim again
+end
+group Expired/empty drops
+autonumber 1
+user->drop: claimClaimerBoxCost( dropId, claimerAddess, receiver ) (*)
+note right: anyone can call - called for each claimer address,\nreceiver receives freed MBR
+user->drop: cleanupDrop( dropId )
+note right: Only if expired/empty, callable by anyone\nRefunds remaining tokens to creator\nfrees mbr
+end
+
+@enduml
+

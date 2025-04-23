@@ -1,0 +1,39 @@
+{
+    "name": "tokendrop",
+    "version": "0.0.0",
+    "license": "MIT",
+    "scripts": {
+        "generate-client": "algokit generate client contracts/artifacts/ --language typescript  --output contracts/clients/{contract_name}Client.ts",
+        "compile-contract": "tealscript contracts/*.algo.ts contracts/artifacts",
+        "noalgobuild": "pnpm run compile-contract -- --skip-algod && pnpm run generate-client",
+        "build": "pnpm run compile-contract && pnpm run generate-client",
+        "test": "pnpm run build && pnpm run retest",
+        "retest": "vitest --run --test-timeout=120000",
+        "lint": "eslint . --ext ts --max-warnings 0",
+        "lint:fix": "eslint . --ext ts --max-warnings 0 --fix",
+        "prettier": "pnpx prettier --check .",
+        "prettier:fix": "pnpx prettier --write .",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@algorandfoundation/algokit-utils": "9.0.1",
+        "algosdk": "3.2.0"
+    },
+    "devDependencies": {
+        "@algorandfoundation/algokit-client-generator": "5.0.0",
+        "@algorandfoundation/tealscript": "0.106.3",
+        "@joe-p/algokit-generate-component": "0.2.1",
+        "@typescript-eslint/eslint-plugin": "8.8.1",
+        "@typescript-eslint/parser": "8.8.1",
+        "base32-encode": "^2.0.0",
+        "eslint": "8.57.1",
+        "eslint-config-airbnb-base": "15.0.0",
+        "eslint-config-airbnb-typescript": "18.0.0",
+        "eslint-config-prettier": "9.1.0",
+        "eslint-plugin-import": "2.31.0",
+        "eslint-plugin-prettier": "5.2.1",
+        "prettier": "3.3.3",
+        "typescript": "5.6.3",
+        "vitest": "2.1.2"
+    }
+}
